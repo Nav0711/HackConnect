@@ -1,5 +1,5 @@
 from appwrite.client import Client
-from appwrite.services.databases import Databases
+from appwrite.services.tables_db import TablesDB  # <--- MUST BE TablesDB
 from app.core.config import settings
 
 def get_appwrite_client():
@@ -11,4 +11,5 @@ def get_appwrite_client():
 
 def get_db_service():
     client = get_appwrite_client()
-    return Databases(client)
+    # This enables the new '.list_rows()' command
+    return TablesDB(client)
