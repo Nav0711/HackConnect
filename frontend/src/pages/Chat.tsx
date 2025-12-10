@@ -1,9 +1,8 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Navbar } from "@/components/layout/Navbar";
@@ -19,8 +18,9 @@ import {
   Smile,
   Hash,
   Users,
-  Settings,
   Pin,
+  PanelRightClose,
+  PanelRightOpen,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -132,11 +132,12 @@ const pinnedResources = [
 export default function Chat() {
   const [selectedChannel, setSelectedChannel] = useState(channels[0]);
   const [newMessage, setNewMessage] = useState("");
+  const [showChannels, setShowChannels] = useState(true);
+  const [showRightPanel, setShowRightPanel] = useState(true);
 
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newMessage.trim()) return;
-    // Handle sending message
     console.log("Send:", newMessage);
     setNewMessage("");
   };
@@ -153,39 +154,53 @@ export default function Chat() {
       <Navbar />
       <Sidebar />
 
-      <main className="pl-64 pt-16 h-screen">
+      <main className="lg:pl-64 pt-16 h-screen">
         <div className="flex h-[calc(100vh-4rem)]">
-          {/* Channel List */}
-          <div className="w-72 border-r border-border/50 flex flex-col">
+          {/* Channel List - Responsive */}
+          <div
+            className={cn(
+              "border-r border-border/50 flex flex-col transition-all duration-300 bg-background",
+              showChannels ? "w-72 md:w-72" : "w-0 overflow-hidden",
+              "absolute lg:relative z-20 h-[calc(100vh-4rem)] lg:h-auto"
+            )}
+          >
             <div className="p-4 border-b border-border/50">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input placeholder="Search messages..." className="pl-10" />
+                <Input
+                  placeholder="Search messages..."
+                  className="pl-10 transition-all duration-200 focus:ring-2 focus:ring-primary/20"
+                />
               </div>
             </div>
 
             <ScrollArea className="flex-1">
               <div className="p-2 space-y-1">
-                {channels.map((channel) => (
+                {channels.map((channel, index) => (
                   <button
                     key={channel.id}
-                    onClick={() => setSelectedChannel(channel)}
+                    onClick={() => {
+                      setSelectedChannel(channel);
+                      if (window.innerWidth < 1024) setShowChannels(false);
+                    }}
                     className={cn(
-                      "w-full flex items-center gap-3 p-3 rounded-lg text-left transition-colors",
+                      "w-full flex items-center gap-3 p-3 rounded-lg text-left transition-all duration-200 animate-fade-in",
+                      "hover:scale-[1.02] active:scale-[0.98]",
                       selectedChannel.id === channel.id
-                        ? "bg-primary/10 border border-primary/30"
+                        ? "bg-primary/10 border border-primary/30 shadow-sm"
                         : "hover:bg-muted"
                     )}
+                    style={{ animationDelay: `${index * 0.05}s` }}
                   >
                     <div className="relative">
                       {channel.type === "direct" ? (
-                        <Avatar className="h-10 w-10">
+                        <Avatar className="h-10 w-10 transition-transform duration-200 hover:scale-110">
                           <AvatarFallback className="bg-muted">
                             {channel.name.slice(0, 2).toUpperCase()}
                           </AvatarFallback>
                         </Avatar>
                       ) : (
-                        <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center">
+                        <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center transition-all duration-200 hover:bg-primary/10">
                           {channel.type === "team" ? (
                             <Users className="h-5 w-5 text-muted-foreground" />
                           ) : (
@@ -194,7 +209,7 @@ export default function Chat() {
                         </div>
                       )}
                       {channel.unreadCount > 0 && (
-                        <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-primary text-[10px] font-bold flex items-center justify-center text-primary-foreground">
+                        <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-primary text-[10px] font-bold flex items-center justify-center text-primary-foreground animate-pulse">
                           {channel.unreadCount}
                         </span>
                       )}
@@ -216,17 +231,25 @@ export default function Chat() {
             </ScrollArea>
           </div>
 
-          {/* Chat Area */}
-          <div className="flex-1 flex flex-col">
+          {/* Chat Area - Flexible */}
+          <div className="flex-1 flex flex-col min-w-0">
             {/* Chat Header */}
-            <div className="p-4 border-b border-border/50 flex items-center justify-between">
+            <div className="p-4 border-b border-border/50 flex items-center justify-between bg-background/95 backdrop-blur-sm">
               <div className="flex items-center gap-3">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="lg:hidden interactive-scale"
+                  onClick={() => setShowChannels(!showChannels)}
+                >
+                  <Menu className="h-5 w-5" />
+                </Button>
                 {selectedChannel.type === "team" ? (
-                  <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center transition-transform duration-200 hover:scale-110">
                     <Users className="h-5 w-5 text-primary" />
                   </div>
                 ) : (
-                  <Avatar className="h-10 w-10">
+                  <Avatar className="h-10 w-10 transition-transform duration-200 hover:scale-110">
                     <AvatarFallback className="bg-primary/20 text-primary">
                       {selectedChannel.name.slice(0, 2).toUpperCase()}
                     </AvatarFallback>
@@ -237,39 +260,61 @@ export default function Chat() {
                   <p className="text-sm text-muted-foreground">3 members online</p>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
-                <Button variant="ghost" size="icon">
+              <div className="flex items-center gap-1">
+                <Button variant="ghost" size="icon" className="hidden sm:flex interactive-scale">
                   <Phone className="h-5 w-5" />
                 </Button>
-                <Button variant="ghost" size="icon">
+                <Button variant="ghost" size="icon" className="hidden sm:flex interactive-scale">
                   <Video className="h-5 w-5" />
                 </Button>
-                <Button variant="ghost" size="icon">
+                <Button variant="ghost" size="icon" className="hidden sm:flex interactive-scale">
                   <Pin className="h-5 w-5" />
                 </Button>
-                <Button variant="ghost" size="icon">
+                <Button variant="ghost" size="icon" className="interactive-scale">
                   <MoreVertical className="h-5 w-5" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="hidden md:flex interactive-scale"
+                  onClick={() => setShowRightPanel(!showRightPanel)}
+                >
+                  {showRightPanel ? (
+                    <PanelRightClose className="h-5 w-5" />
+                  ) : (
+                    <PanelRightOpen className="h-5 w-5" />
+                  )}
                 </Button>
               </div>
             </div>
 
-            {/* Messages */}
+            {/* Messages - Flexible scroll area */}
             <ScrollArea className="flex-1 p-4">
-              <div className="space-y-1">
-                {messages.map((message) => (
-                  <ChatMessage
+              <div className="space-y-1 max-w-3xl mx-auto">
+                {messages.map((message, index) => (
+                  <div
                     key={message.id}
-                    message={message}
-                    isOwn={message.senderId === "1"}
-                  />
+                    className="animate-fade-in"
+                    style={{ animationDelay: `${index * 0.05}s` }}
+                  >
+                    <ChatMessage
+                      message={message}
+                      isOwn={message.senderId === "1"}
+                    />
+                  </div>
                 ))}
               </div>
             </ScrollArea>
 
-            {/* Message Input */}
-            <div className="p-4 border-t border-border/50">
-              <form onSubmit={handleSendMessage} className="flex items-center gap-2">
-                <Button type="button" variant="ghost" size="icon">
+            {/* Message Input - Responsive */}
+            <div className="p-4 border-t border-border/50 bg-background/95 backdrop-blur-sm">
+              <form onSubmit={handleSendMessage} className="flex items-center gap-2 max-w-3xl mx-auto">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="hidden sm:flex interactive-scale"
+                >
                   <Plus className="h-5 w-5" />
                 </Button>
                 <div className="relative flex-1">
@@ -277,36 +322,61 @@ export default function Chat() {
                     placeholder="Type a message..."
                     value={newMessage}
                     onChange={(e) => setNewMessage(e.target.value)}
-                    className="pr-20"
+                    className="pr-20 transition-all duration-200 focus:ring-2 focus:ring-primary/20 focus:scale-[1.01]"
                   />
                   <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
-                    <Button type="button" variant="ghost" size="icon" className="h-8 w-8">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 hidden sm:flex interactive-scale"
+                    >
                       <Paperclip className="h-4 w-4" />
                     </Button>
-                    <Button type="button" variant="ghost" size="icon" className="h-8 w-8">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 interactive-scale"
+                    >
                       <Smile className="h-4 w-4" />
                     </Button>
                   </div>
                 </div>
-                <Button type="submit" variant="neon" size="icon">
+                <Button
+                  type="submit"
+                  variant="neon"
+                  size="icon"
+                  className="interactive-scale"
+                >
                   <Send className="h-5 w-5" />
                 </Button>
               </form>
             </div>
           </div>
 
-          {/* Right Sidebar */}
-          <div className="w-72 border-l border-border/50 p-4 space-y-6">
-            <div>
+          {/* Right Sidebar - Collapsible */}
+          <div
+            className={cn(
+              "border-l border-border/50 p-4 space-y-6 transition-all duration-300 bg-background",
+              "hidden md:block",
+              showRightPanel ? "w-72" : "w-0 overflow-hidden p-0"
+            )}
+          >
+            <div className="animate-fade-in">
               <h3 className="font-semibold mb-3 flex items-center gap-2">
                 <Pin className="h-4 w-4" />
                 Pinned Resources
               </h3>
               <div className="space-y-2">
-                {pinnedResources.map((resource) => (
-                  <Card key={resource.id} variant="interactive" className="p-3">
+                {pinnedResources.map((resource, index) => (
+                  <Card
+                    key={resource.id}
+                    className="p-3 cursor-pointer card-hover animate-fade-in"
+                    style={{ animationDelay: `${index * 0.1}s` }}
+                  >
                     <div className="flex items-center gap-2">
-                      <div className="h-8 w-8 rounded bg-muted flex items-center justify-center text-xs font-medium">
+                      <div className="h-8 w-8 rounded bg-muted flex items-center justify-center text-xs font-medium transition-all duration-200 hover:bg-primary/10">
                         {resource.type.toUpperCase().slice(0, 3)}
                       </div>
                       <span className="text-sm font-medium">{resource.title}</span>
@@ -316,12 +386,16 @@ export default function Chat() {
               </div>
             </div>
 
-            <div>
+            <div className="animate-fade-in" style={{ animationDelay: '0.2s' }}>
               <h3 className="font-semibold mb-3">Team Members</h3>
               <div className="space-y-2">
-                {["John Doe", "Jane Smith", "Bob Smith"].map((member) => (
-                  <div key={member} className="flex items-center gap-3 p-2">
-                    <Avatar className="h-8 w-8">
+                {["John Doe", "Jane Smith", "Bob Smith"].map((member, index) => (
+                  <div
+                    key={member}
+                    className="flex items-center gap-3 p-2 rounded-lg transition-all duration-200 hover:bg-muted cursor-pointer animate-fade-in"
+                    style={{ animationDelay: `${0.3 + index * 0.1}s` }}
+                  >
+                    <Avatar className="h-8 w-8 transition-transform duration-200 hover:scale-110">
                       <AvatarFallback className="bg-muted text-xs">
                         {member.slice(0, 2).toUpperCase()}
                       </AvatarFallback>
@@ -329,7 +403,7 @@ export default function Chat() {
                     <div className="flex-1">
                       <p className="text-sm font-medium">{member}</p>
                     </div>
-                    <div className="h-2 w-2 rounded-full bg-green-500" />
+                    <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
                   </div>
                 ))}
               </div>
@@ -338,5 +412,26 @@ export default function Chat() {
         </div>
       </main>
     </div>
+  );
+}
+
+function Menu(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}
+    >
+      <line x1="4" x2="20" y1="12" y2="12" />
+      <line x1="4" x2="20" y1="6" y2="6" />
+      <line x1="4" x2="20" y1="18" y2="18" />
+    </svg>
   );
 }
