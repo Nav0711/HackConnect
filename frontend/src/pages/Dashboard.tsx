@@ -7,13 +7,13 @@ import { Sidebar } from "@/components/layout/Sidebar";
 import { Navbar } from "@/components/layout/Navbar";
 import { HackathonCard } from "@/components/features/HackathonCard";
 import { TeamCard } from "@/components/features/TeamCard";
+import { NotificationPanel } from "@/components/features/NotificationPanel";
 import {
   Calendar,
   Trophy,
   Users,
   Zap,
   ArrowRight,
-  Bell,
   Clock,
   TrendingUp,
   MessageSquare,
@@ -80,12 +80,7 @@ export default function Dashboard() {
               <p className="text-muted-foreground">Here's what's happening with your hackathons</p>
             </div>
             <div className="flex items-center gap-3">
-              <Button variant="outline" size="icon" className="relative">
-                <Bell className="h-5 w-5" />
-                <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-primary text-[10px] font-bold flex items-center justify-center text-primary-foreground">
-                  3
-                </span>
-              </Button>
+              <NotificationPanel />
               <Link to="/explore">
                 <Button variant="neon">
                   Find Hackathons
