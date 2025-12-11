@@ -3,6 +3,7 @@ from app.services.appwrite import get_db_service, get_users_service
 from app.core.config import settings
 from app.models.user import UserRegister, UserLoginSync
 from appwrite.id import ID
+from appwrite.exception import AppwriteException
 
 router = APIRouter()
 
@@ -22,6 +23,10 @@ def register_user(user: UserRegister):
                 password=user.password,
                 name=user.name
             )
+        except AppwriteException as e:
+            if e.code == 409:
+                raise HTTPException(status_code=400, detail="Email already registered")
+            raise e
         except Exception as e:
             if "409" in str(e):
                 raise HTTPException(status_code=400, detail="Email already registered")
@@ -39,10 +44,10 @@ def register_user(user: UserRegister):
         }
 
         try:
-            db_service.create_row(
+            db_service.create_document(
                 database_id=settings.APPWRITE_DATABASE_ID,
-                table_id=settings.COLLECTION_USERS,
-                row_id=auth_user['$id'], # Sync ID
+                collection_id=settings.COLLECTION_USERS,
+                document_id=auth_user['$id'], # Sync ID
                 data=profile_data
             )
         except Exception as e:
@@ -58,6 +63,7 @@ def register_user(user: UserRegister):
     except HTTPException as he:
         raise he
     except Exception as e:
+        print(f"Register Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 # --- 2. LOGIN SYNC ---
@@ -79,16 +85,22 @@ def login_sync(user: UserLoginSync):
         }
 
         try:
-            db.create_row(
+            db.create_document(
                 database_id=settings.APPWRITE_DATABASE_ID,
-                table_id=settings.COLLECTION_USERS,
-                row_id=user.id,
+                collection_id=settings.COLLECTION_USERS,
+                document_id=user.id,
                 data=data_to_save
             )
             return {"success": True, "message": "First-time login: Profile created"}
+        except AppwriteException as e:
+            if e.code == 409:
+                return {"success": True, "message": "Sync OK (User exists)"}
+            print(f"Login Sync Appwrite Error: {e.message}, Code: {e.code}")
+            raise e
         except Exception as e:
             if "409" in str(e):
                 return {"success": True, "message": "Sync OK (User exists)"}
+            print(f"Login Sync Generic Error: {e}")
             raise e
 
     except Exception as e:
