@@ -1,9 +1,19 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.api.routes import hackathons
 from app.services.appwrite import get_db_service # <--- NEW IMPORT
 from app.api.routes import hackathons, auth
 app = FastAPI(title=settings.PROJECT_NAME)
+
+# Configure CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173", "http://localhost:3000"],  # Allow frontend origins
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.get("/")
 def read_root():
@@ -15,10 +25,10 @@ def read_root():
     try:
         db = get_db_service()
         # We try to fetch just 1 item to see if the connection is alive
-        # (We use the new 'list_rows' syntax you just added)
-        db.list_rows(
+        # (We use the new 'list_documents' syntax)
+        db.list_documents(
             database_id=settings.APPWRITE_DATABASE_ID,
-            table_id=settings.COLLECTION_HACKATHONS,
+            collection_id=settings.COLLECTION_HACKATHONS,
         )
         appwrite_status = "✅ Connected to Appwrite"
     except Exception as e:
