@@ -5,6 +5,7 @@ from app.models.user import UserResponse, UserUpdate
 
 router = APIRouter()
 
+# --- 1. GET USER PROFILE ---
 @router.get("/{user_id}", response_model=UserResponse, summary="Get User Profile")
 def get_user_profile(user_id: str):
     try:
@@ -12,18 +13,17 @@ def get_user_profile(user_id: str):
         users = get_users_service()
         
         try:
-            # 1. Fetch from Appwrite Database (Profile Data)
-            # Note: We use 'get_document' here (Standard Appwrite SDK)
+            # A. Fetch from Appwrite Database (Profile Data)
             doc = db.get_document(
                 database_id=settings.APPWRITE_DATABASE_ID,
                 collection_id=settings.COLLECTION_USERS,
                 document_id=user_id
             )
             
-            # 2. Fetch from Appwrite Auth (Account Data)
+            # B. Fetch from Appwrite Auth (Account Data)
             auth_user = users.get(user_id)
 
-            # 3. Merge and Return
+            # C. Merge and Return
             return {
                 "id": doc['$id'],
                 "username": doc.get('username'),

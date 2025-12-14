@@ -55,13 +55,13 @@ def get_recommendations(user_tags: List[str]):
     try:
         db = get_db_service()
         
-        # FIX: Use 'list_rows'
-        all_data = db.list_rows(
+        # FIX: Changed 'list_rows' to 'list_documents'
+        all_data = db.list_documents(
             database_id=settings.APPWRITE_DATABASE_ID,
-            table_id=settings.COLLECTION_HACKATHONS
+            collection_id=settings.COLLECTION_HACKATHONS # Changed 'table_id' to 'collection_id'
         )
         
-        documents = all_data['rows']
+        documents = all_data['documents'] # Changed 'rows' to 'documents'
         matches = []
 
         if not user_tags:
