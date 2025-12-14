@@ -10,6 +10,7 @@ export interface Team {
   lookingFor: string[];
   techStack: string[];
   projectIdea?: string;
+  projectRepo?: string;
   status: 'forming' | 'full' | 'competing' | 'submitted';
   createdAt: Date;
 }

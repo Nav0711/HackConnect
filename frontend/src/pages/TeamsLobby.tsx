@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Navbar } from "@/components/layout/Navbar";
 import { TeamCard } from "@/components/features/TeamCard";
+import { CreateTeamDialog } from "@/components/features/CreateTeamDialog";
 import {
   Search,
   Plus,
@@ -126,10 +127,7 @@ export default function TeamsLobby() {
             <Shuffle className="h-4 w-4" />
             Quick Match
           </Button>
-          <Button variant="neon" className="gap-2">
-            <Plus className="h-4 w-4" />
-            Create Team
-          </Button>
+          <CreateTeamDialog />
         </div>
       </div>
 
@@ -234,10 +232,7 @@ export default function TeamsLobby() {
                 >
                   Clear Filters
                 </Button>
-                <Button variant="neon">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Create Team
-                </Button>
+                <CreateTeamDialog />
               </div>
             </Card>
           )}
