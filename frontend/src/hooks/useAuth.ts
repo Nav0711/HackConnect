@@ -38,6 +38,7 @@ export function useAuth() {
           username: data.username,
           email: data.email,
           name: data.name,
+          role: data.role || "participant", // Added role
           avatar: data.avatar_url,
           bio: data.bio,
           skills: data.skills || [],
@@ -59,6 +60,7 @@ export function useAuth() {
           username: sessionUser.name.toLowerCase().replace(/\s+/g, ""),
           email: sessionUser.email,
           name: sessionUser.name,
+          role: "participant", // Default role
           skills: [],
           techStack: [],
           xp: 0,
@@ -132,7 +134,7 @@ export function useAuth() {
     }
   }, []);
 
-  const signup = useCallback(async (data: { name: string; email: string; password: string; username: string }) => {
+  const signup = useCallback(async (data: { name: string; email: string; password: string; username: string; role: "participant" | "organizer" }) => {
     setState((prev) => ({ ...prev, isLoading: true }));
     try {
       const response = await fetch(`${API_URL}/auth/register`, {

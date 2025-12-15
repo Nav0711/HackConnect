@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -8,6 +9,7 @@ import { Navbar } from "@/components/layout/Navbar";
 import { HackathonCard } from "@/components/features/HackathonCard";
 import { TeamCard } from "@/components/features/TeamCard";
 import { useAuth } from "@/hooks/useAuth";
+import { useHackathons } from "@/hooks/useHackathons";
 import {
   Calendar,
   Trophy,
@@ -20,31 +22,6 @@ import {
   MessageSquare,
   ChevronRight,
 } from "lucide-react";
-
-const upcomingHackathons = [
-  {
-    id: "1",
-    title: "Web3 Global Summit 2024",
-    shortDescription: "Build the future of decentralized apps",
-    coverImage: "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=400&q=80",
-    startDate: new Date("2024-03-15"),
-    location: { type: "hybrid" as const, city: "San Francisco" },
-    totalPrizePool: 100000,
-    currency: "USD",
-    status: "upcoming" as const,
-  },
-  {
-    id: "2",
-    title: "AI Innovation Challenge",
-    shortDescription: "Push AI boundaries",
-    coverImage: "https://images.unsplash.com/photo-1677442136019-21780ecad995?w=400&q=80",
-    startDate: new Date("2024-02-28"),
-    location: { type: "online" as const },
-    totalPrizePool: 75000,
-    currency: "USD",
-    status: "ongoing" as const,
-  },
-];
 
 const myTeam = {
   id: "1",
@@ -67,7 +44,222 @@ const recentActivity = [
 ];
 
 export default function Dashboard() {
-  const { user } = useAuth();
+  const { user, isLoading } = useAuth();
+  const { fetchHackathons } = useHackathons();
+  const [hackathons, setHackathons] = useState<any[]>([]);
+  const isOrganizer = user?.role === 'organizer';
+
+  useEffect(() => {
+    const loadHackathons = async () => {
+      const result = await fetchHackathons();
+      if (result.success) {
+        setHackathons(result.data);
+      }
+    };
+    loadHackathons();
+  }, [fetchHackathons]);
+
+  const mappedHackathons = hackathons.map((h) => ({
+    id: h.$id || h.id, // Appwrite uses $id
+    title: h.name,
+    shortDescription: h.description,
+    coverImage: h.image_url || "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=400&q=80",
+    startDate: new Date(h.start_date),
+    location: { type: "hybrid" as const, city: h.location },
+    totalPrizePool: parseInt(h.prize_pool || "0"),
+    currency: "USD",
+    status: new Date(h.end_date) < new Date() ? "ended" : new Date(h.start_date) > new Date() ? "upcoming" : "ongoing",
+    organizer_id: h.organizer_id,
+  }));
+
+  const managedHackathons = mappedHackathons.filter(h => h.organizer_id === user?.id);
+  // If no managed hackathons (e.g. new organizer), maybe show empty state or all for demo?
+  // For now, let's use managedHackathons if available, otherwise empty.
+  
+  // For participant view, show all as upcoming/recommended
+  const upcomingHackathons = mappedHackathons;
+
+  if (isLoading) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      </div>
+    );
+  }
+
+  if (isOrganizer) {
+    return (
+      <div className="p-8">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h1 className="text-3xl font-bold">Welcome back, Organizer {user?.name?.split(" ")[0]}! 👋</h1>
+            <p className="text-muted-foreground">Manage your hackathons and community</p>
+          </div>
+          <div className="flex items-center gap-3">
+            <Button variant="outline" size="icon" className="relative">
+              <Bell className="h-5 w-5" />
+              <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-primary text-[10px] font-bold flex items-center justify-center text-primary-foreground">
+                5
+              </span>
+            </Button>
+            <Link to="/create-hackathon">
+              <Button variant="neon">
+                <Zap className="h-4 w-4 mr-2" />
+                Create Hackathon
+              </Button>
+            </Link>
+          </div>
+        </div>
+
+        {/* Organizer Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          <Card variant="elevated">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">Active Hackathons</p>
+                  <p className="text-2xl font-bold">1</p>
+                </div>
+                <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                  <Calendar className="h-6 w-6 text-primary" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card variant="elevated">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">Total Participants</p>
+                  <p className="text-2xl font-bold neon-text">1,240</p>
+                </div>
+                <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                  <Users className="h-6 w-6 text-primary" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card variant="elevated">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">Submissions</p>
+                  <p className="text-2xl font-bold">45</p>
+                </div>
+                <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                  <Trophy className="h-6 w-6 text-primary" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card variant="elevated">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">Pending Reviews</p>
+                  <p className="text-2xl font-bold">12</p>
+                </div>
+                <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                  <Clock className="h-6 w-6 text-primary" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="grid lg:grid-cols-3 gap-8">
+          {/* Main Content */}
+          <div className="lg:col-span-2 space-y-8">
+            {/* Managed Hackathons */}
+            <section>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-semibold">Managed Hackathons</h2>
+                <Link to="/my-hackathons">
+                  <Button variant="ghost" size="sm" className="group">
+                    View All
+                    <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                  </Button>
+                </Link>
+              </div>
+              <div className="grid md:grid-cols-2 gap-4">
+                {managedHackathons.length > 0 ? (
+                  managedHackathons.map((hackathon) => (
+                    <HackathonCard 
+                      key={hackathon.id}
+                      hackathon={hackathon as any} 
+                      variant="compact" 
+                    />
+                  ))
+                ) : (
+                  <div className="col-span-2 text-center py-8 text-muted-foreground">
+                    No hackathons created yet.
+                  </div>
+                )}
+              </div>
+            </section>
+          </div>
+
+          {/* Sidebar Content */}
+          <div className="space-y-6">
+            {/* Recent Activity */}
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg">Recent Activity</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-start gap-3">
+                  <div className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center flex-shrink-0">
+                    <Users className="h-4 w-4 text-muted-foreground" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm">New participant joined Web3 Summit</p>
+                    <p className="text-xs text-muted-foreground flex items-center gap-1">
+                      <Clock className="h-3 w-3" />
+                      10 mins ago
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center flex-shrink-0">
+                    <MessageSquare className="h-4 w-4 text-muted-foreground" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm">New question in General channel</p>
+                    <p className="text-xs text-muted-foreground flex items-center gap-1">
+                      <Clock className="h-3 w-3" />
+                      1 hour ago
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Quick Actions */}
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg">Quick Actions</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                <Link to="/create-hackathon" className="block">
+                  <Button variant="outline" className="w-full justify-start">
+                    <Zap className="h-4 w-4 mr-2" />
+                    Create Hackathon
+                  </Button>
+                </Link>
+                <Link to="/manage-participants" className="block">
+                  <Button variant="outline" className="w-full justify-start">
+                    <Users className="h-4 w-4 mr-2" />
+                    Manage Participants
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-8">
@@ -135,7 +327,7 @@ export default function Dashboard() {
               </CardContent>
             </Card>
             <Card variant="elevated">
-              <CardContent className="p-6">
+              <CardContent className="p-6"> as any
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm text-muted-foreground">Team Members</p>
@@ -244,7 +436,7 @@ export default function Dashboard() {
                 </div>
                 <div className="grid md:grid-cols-2 gap-4">
                   {upcomingHackathons.map((hackathon) => (
-                    <HackathonCard key={hackathon.id} hackathon={hackathon} />
+                    <HackathonCard key={hackathon.id} hackathon={hackathon as any} />
                   ))}
                 </div>
               </section>

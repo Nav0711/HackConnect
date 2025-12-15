@@ -15,6 +15,8 @@ import Profile from "./pages/Profile";
 import Showcase from "./pages/Showcase";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
+import CreateHackathon from "./pages/CreateHackathon";
+import HackathonDetails from "./pages/HackathonDetails";
 
 const queryClient = new QueryClient();
 
@@ -39,6 +41,8 @@ const App = () => (
             <Route path="/showcase" element={<Showcase />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/my-hackathons" element={<Dashboard />} />
+            <Route path="/create-hackathon" element={<CreateHackathon />} />
+            <Route path="/hackathons/:id" element={<HackathonDetails />} />
           </Route>
 
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

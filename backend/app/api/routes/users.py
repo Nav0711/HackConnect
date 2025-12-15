@@ -29,6 +29,7 @@ def get_user_profile(user_id: str):
                 "username": doc.get('username'),
                 "email": auth_user['email'],      # From Auth
                 "name": auth_user['name'],        # From Auth
+                "role": doc.get('role', 'participant'), # Added role
                 "bio": doc.get('bio'),
                 "avatar_url": doc.get('avatar_url'),
                 "github_url": doc.get('github_url'),

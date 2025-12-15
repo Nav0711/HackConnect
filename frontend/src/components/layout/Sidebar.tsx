@@ -17,11 +17,13 @@ import {
   ChevronRight,
 } from "lucide-react";
 
+import { useAuth } from "@/hooks/useAuth";
+
 const mainNavItems = [
   { href: "/dashboard", icon: Home, label: "Home" },
-  { href: "/explore", icon: Compass, label: "Explore" },
+  { href: "/explore", icon: Compass, label: "Explore", roles: ["participant"] },
   { href: "/my-hackathons", icon: Calendar, label: "My Hackathons" },
-  { href: "/teams/lobby", icon: Users, label: "Teams" },
+  { href: "/teams/lobby", icon: Users, label: "Teams", roles: ["participant"] },
   { href: "/chat", icon: MessageSquare, label: "Messages" },
   { href: "/showcase", icon: Trophy, label: "Showcase" },
 ];
@@ -37,6 +39,13 @@ interface SidebarProps {
 }
 
 export function Sidebar({ collapsed = false, setCollapsed }: SidebarProps) {
+  const { user } = useAuth();
+  const role = user?.role || "participant";
+
+  const filteredNavItems = mainNavItems.filter(item => 
+    !item.roles || item.roles.includes(role)
+  );
+
   return (
     <motion.aside
       initial={false}
@@ -62,7 +71,7 @@ export function Sidebar({ collapsed = false, setCollapsed }: SidebarProps) {
 
       <div className="flex-1 py-2 overflow-y-auto overflow-x-hidden">
         <nav className="space-y-1 px-2">
-          {mainNavItems.map((item) => (
+          {filteredNavItems.map((item) => (
             <NavLink
               key={item.href}
               to={item.href}

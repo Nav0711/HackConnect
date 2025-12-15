@@ -10,10 +10,15 @@ class HackathonBase(BaseModel):
     end_date: datetime
     location: str
     tags: List[str]  # Example: ["AI", "Web3"]
+    organizer_id: Optional[str] = None # Added organizer_id
     prize_pool: Optional[str] = None
     registration_link: Optional[str] = None
-    image_url: Optional[str] = None
-
+    image_url: Optional[str] = None    # New fields
+    status: str = "draft"
+    min_team_size: int = 1
+    max_team_size: int = 4
+    mode: str = "online"
+    tagline: Optional[str] = None
 # 2. CREATE: What the Frontend sends us
 # (Notice: No ID, no CreatedAt. The DB makes those.)
 class HackathonCreate(HackathonBase):

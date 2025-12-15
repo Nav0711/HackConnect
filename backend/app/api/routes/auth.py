@@ -36,6 +36,7 @@ def register_user(user: UserRegister):
         profile_data = {
             "username": user.username,
             "account_id": auth_user['$id'],
+            "role": user.role, # Added role
             "xp": 0,
             "reputation_score": 0.0,
             "skills": [],

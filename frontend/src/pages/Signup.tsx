@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Navbar } from "@/components/layout/Navbar";
-import { Zap, Github, Mail, ArrowRight, Eye, EyeOff, User } from "lucide-react";
+import { Zap, Github, Mail, ArrowRight, Eye, EyeOff, User, Briefcase } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 
@@ -20,6 +20,7 @@ export default function Signup() {
     username: "",
     email: "",
     password: "",
+    role: "participant" as "participant" | "organizer",
     agreeToTerms: false,
   });
 
@@ -45,6 +46,7 @@ export default function Signup() {
       email: formData.email,
       password: formData.password,
       username: formData.username,
+      role: formData.role,
     });
 
     if (result.success) {
@@ -111,6 +113,26 @@ export default function Signup() {
 
             {/* Signup Form */}
             <form onSubmit={handleSubmit} className="space-y-4">
+              {/* Role Selection */}
+              <div className="grid grid-cols-2 gap-3 mb-4">
+                <div 
+                  className={`cursor-pointer rounded-lg border-2 p-4 text-center transition-all hover:border-primary/50 ${formData.role === 'participant' ? 'border-primary bg-primary/5' : 'border-muted bg-card'}`}
+                  onClick={() => updateField("role", "participant")}
+                >
+                  <User className="mx-auto mb-2 h-6 w-6" />
+                  <div className="font-semibold">Hacker</div>
+                  <div className="text-xs text-muted-foreground">I want to participate</div>
+                </div>
+                <div 
+                  className={`cursor-pointer rounded-lg border-2 p-4 text-center transition-all hover:border-primary/50 ${formData.role === 'organizer' ? 'border-primary bg-primary/5' : 'border-muted bg-card'}`}
+                  onClick={() => updateField("role", "organizer")}
+                >
+                  <Briefcase className="mx-auto mb-2 h-6 w-6" />
+                  <div className="font-semibold">Organizer</div>
+                  <div className="text-xs text-muted-foreground">I want to host hackathons</div>
+                </div>
+              </div>
+
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-2">
                   <Label htmlFor="name">Full Name</Label>

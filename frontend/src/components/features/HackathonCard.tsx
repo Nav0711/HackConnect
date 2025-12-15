@@ -5,6 +5,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Calendar, MapPin, Users, Trophy, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Hackathon } from "@/types/hackathon";
+import { useNavigate } from "react-router-dom";
 
 interface HackathonCardProps {
   hackathon: Partial<Hackathon>;
@@ -43,7 +44,9 @@ export function HackathonCardSkeleton() {
 }
 
 export function HackathonCard({ hackathon, variant = "default", onClick }: HackathonCardProps) {
+  const navigate = useNavigate();
   const {
+    id,
     title,
     shortDescription,
     coverImage,
@@ -88,9 +91,17 @@ export function HackathonCard({ hackathon, variant = "default", onClick }: Hacka
     }
   };
 
+  const handleClick = () => {
+    if (onClick) {
+      onClick();
+    } else if (id) {
+      navigate(`/hackathons/${id}`);
+    }
+  };
+
   if (variant === "compact") {
     return (
-      <Card variant="interactive" className="flex items-center gap-4 p-4">
+      <Card variant="interactive" className="flex items-center gap-4 p-4" onClick={handleClick}>
         <div
           className="h-16 w-16 rounded-lg bg-cover bg-center flex-shrink-0"
           style={{ backgroundImage: `url(${coverImage || "/placeholder.svg"})` }}
@@ -122,6 +133,7 @@ export function HackathonCard({ hackathon, variant = "default", onClick }: Hacka
         "overflow-hidden group h-full flex flex-col",
         variant === "featured" && "ring-1 ring-primary/50"
       )}
+      onClick={handleClick}
     >
       {/* Cover Image */}
       <div className="relative h-48 overflow-hidden">

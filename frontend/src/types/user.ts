@@ -3,6 +3,7 @@ export interface User {
   username: string;
   email: string;
   name: string;
+  role: "participant" | "organizer"; // Added role
   avatar?: string;
   bio?: string;
   skills: string[];

@@ -5,6 +5,7 @@ from typing import List, Optional
 class UserBase(BaseModel):
     username: str
     account_id: str
+    role: str = "participant" # Added role
     bio: Optional[str] = None
     avatar_url: Optional[str] = None
     github_url: Optional[str] = None
@@ -20,6 +21,7 @@ class UserRegister(BaseModel):
     password: str = Field(..., min_length=8)
     name: str
     username: str
+    role: str = "participant" # Added role
 
 # --- 3. LOGIN INPUT ---
 class UserLoginSync(BaseModel):

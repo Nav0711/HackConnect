@@ -48,7 +48,22 @@ def get_hackathons():
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-# --- 3. RECOMMENDATION ENGINE (Fixed) ---
+# --- 3. GET HACKATHON BY ID ---
+
+@router.get("/{hackathon_id}", summary="Get Hackathon by ID")
+def get_hackathon(hackathon_id: str):
+    try:
+        db = get_db_service()
+        result = db.get_document(
+            database_id=settings.APPWRITE_DATABASE_ID,
+            collection_id=settings.COLLECTION_HACKATHONS,
+            document_id=hackathon_id
+        )
+        return {"success": True, "data": result}
+    except Exception as e:
+        raise HTTPException(status_code=404, detail="Hackathon not found")
+
+# --- 4. RECOMMENDATION ENGINE (Fixed) ---
 
 @router.post("/recommendations", summary="Get personalized hackathons")
 def get_recommendations(user_tags: List[str]):
