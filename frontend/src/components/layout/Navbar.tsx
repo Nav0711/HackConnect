@@ -28,7 +28,7 @@ export function Navbar() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2 group">
+          <Link to={isAuthenticated ? "/dashboard" : "/"} className="flex items-center gap-2 group">
             <div className="relative">
               <img src="/logo.svg" alt="HackConnect Logo" className="h-8 w-8 transition-all duration-300 group-hover:scale-110 group-hover:rotate-12" />
               <div className="absolute inset-0 blur-lg bg-primary/30 group-hover:bg-primary/50 transition-all duration-300" />

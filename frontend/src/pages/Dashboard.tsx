@@ -47,6 +47,7 @@ export default function Dashboard() {
   const { user, isLoading } = useAuth();
   const { fetchHackathons } = useHackathons();
   const [hackathons, setHackathons] = useState<any[]>([]);
+  const [visibleCount, setVisibleCount] = useState(4); // Show 4 initially
   const isOrganizer = user?.role === 'organizer';
 
   useEffect(() => {
@@ -58,6 +59,10 @@ export default function Dashboard() {
     };
     loadHackathons();
   }, [fetchHackathons]);
+
+  const handleViewMore = () => {
+    setVisibleCount((prev) => prev + 4);
+  };
 
   const mappedHackathons = hackathons.map((h) => ({
     id: h.$id || h.id, // Appwrite uses $id
@@ -178,8 +183,8 @@ export default function Dashboard() {
                 </Link>
               </div>
               <div className="grid md:grid-cols-2 gap-4">
-                {managedHackathons.length > 0 ? (
-                  managedHackathons.map((hackathon) => (
+                {managedHackathons.slice(0, visibleCount).length > 0 ? (
+                  managedHackathons.slice(0, visibleCount).map((hackathon) => (
                     <HackathonCard 
                       key={hackathon.id}
                       hackathon={hackathon as any} 
@@ -192,6 +197,13 @@ export default function Dashboard() {
                   </div>
                 )}
               </div>
+              {managedHackathons.length > visibleCount && (
+                <div className="mt-4 text-center">
+                  <Button variant="outline" onClick={handleViewMore}>
+                    View More
+                  </Button>
+                </div>
+              )}
             </section>
           </div>
 
@@ -346,10 +358,17 @@ export default function Dashboard() {
                   </Link>
                 </div>
                 <div className="grid md:grid-cols-2 gap-4">
-                  {upcomingHackathons.map((hackathon) => (
-                    <HackathonCard key={hackathon.id} hackathon={hackathon} variant="compact" />
+                  {upcomingHackathons.slice(0, visibleCount).map((hackathon) => (
+                    <HackathonCard key={hackathon.id} hackathon={hackathon as any} variant="compact" />
                   ))}
                 </div>
+                {upcomingHackathons.length > visibleCount && (
+                  <div className="mt-4 text-center">
+                    <Button variant="outline" onClick={handleViewMore}>
+                      View More
+                    </Button>
+                  </div>
+                )}
               </section>
 
               {/* My Team */}
@@ -425,7 +444,7 @@ export default function Dashboard() {
                   </Link>
                 </div>
                 <div className="grid md:grid-cols-2 gap-4">
-                  {upcomingHackathons.map((hackathon) => (
+                  {upcomingHackathons.slice(0, 4).map((hackathon) => (
                     <HackathonCard key={hackathon.id} hackathon={hackathon as any} />
                   ))}
                 </div>
