@@ -67,7 +67,7 @@ export default function Profile() {
   const { user: authUser, logout, isLoading: authLoading } = useAuth();
   const { toast } = useToast();
   
-  const { profileQuery, hackathonQuery } = useProfile(id, authUser?.id);
+  const { profileQuery, hackathonQuery } = useProfile(id, authUser?.id, authUser);
   const viewedUser = profileQuery.data;
   const participatedHackathons = hackathonQuery.data || [];
 

@@ -16,6 +16,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { User } from "@/types/user";
 import { Edit } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface EditProfileDialogProps {
   user: User;
@@ -26,6 +27,7 @@ export function EditProfileDialog({ user }: EditProfileDialogProps) {
   const [isLoading, setIsLoading] = useState(false);
   const { updateProfile } = useAuth();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const [formData, setFormData] = useState({
     name: user.name,
@@ -66,6 +68,9 @@ export function EditProfileDialog({ user }: EditProfileDialogProps) {
     setIsLoading(false);
 
     if (result.success) {
+      // Invalidate the user query to trigger a refetch
+      queryClient.invalidateQueries({ queryKey: ["user", user.id] });
+      
       toast({
         title: "Profile updated",
         description: "Your profile has been successfully updated.",

@@ -52,7 +52,7 @@ async function fetchUserHackathons(userId: string) {
   return [];
 }
 
-export function useProfile(userId: string | undefined, authUserId: string | undefined) {
+export function useProfile(userId: string | undefined, authUserId: string | undefined, authUser?: User | null) {
   // Determine which ID to use (URL param or Logged in User)
   const targetId = userId || authUserId;
 
@@ -61,6 +61,7 @@ export function useProfile(userId: string | undefined, authUserId: string | unde
     queryFn: () => fetchUserData(targetId!),
     enabled: !!targetId, // Only run if we have an ID
     staleTime: 1000 * 60 * 5, // Data stays fresh for 5 minutes (NO RE-FETCHING)
+    initialData: (authUser && authUser.id === targetId) ? authUser : undefined,
   });
 
   const hackathonQuery = useQuery({
