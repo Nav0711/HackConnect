@@ -25,7 +25,7 @@ export default function Dashboard() {
   const { user } = useAuth();
   
   // 1. USE THE CUSTOM HOOK (No more useEffect)
-  const { allHackathons, myHackathons: rawMyHackathons, myTeam, isLoading } = useDashboardData();
+  const { allHackathons, myHackathons: rawMyHackathons, myTeam, isLoading, isTeamsLoading } = useDashboardData();
   
   const [visibleCount, setVisibleCount] = useState(4);
   const isOrganizer = user?.role === "organizer";
@@ -198,7 +198,26 @@ export default function Dashboard() {
           {/* My Team */}
           <section>
             <h2 className="text-xl font-semibold mb-4">My Team</h2>
-            {myTeam ? (
+            {isTeamsLoading ? (
+              <Card className="border-primary/20 bg-primary/5 overflow-hidden">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-3">
+                      <Skeleton className="h-12 w-12 rounded-xl" />
+                      <div className="space-y-2">
+                        <Skeleton className="h-5 w-32" />
+                        <Skeleton className="h-4 w-24" />
+                      </div>
+                    </div>
+                    <Skeleton className="h-6 w-20 rounded-full" />
+                  </div>
+                  <div className="flex justify-between gap-4">
+                    <Skeleton className="h-10 w-32" />
+                    <Skeleton className="h-6 w-48" />
+                  </div>
+                </CardContent>
+              </Card>
+            ) : myTeam ? (
               <Link to={`/teams/${myTeam.$id}`}>
                 <Card className="border-primary/20 bg-primary/5 overflow-hidden hover:bg-primary/10 transition-colors cursor-pointer group">
                   <CardContent className="p-6">

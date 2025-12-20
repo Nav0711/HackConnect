@@ -4,6 +4,7 @@ from app.core.config import settings
 from app.models.team import TeamCreate
 from pydantic import BaseModel
 from appwrite.id import ID
+from appwrite.query import Query
 from typing import Optional, List
 import asyncio
 
@@ -156,16 +157,23 @@ async def leave_team(action: TeamAction):
 
 # --- 4. LIST TEAMS (OPTIMIZED) ---
 @router.get("/", summary="List All Teams")
-async def list_teams():
+async def list_teams(user_id: Optional[str] = None):
     try:
         db = get_db_service()
         users_service = get_users_service()
         
+        queries = []
+        if user_id:
+            # Filter teams where user is a member
+            # Query.equal works for array containment in Appwrite (matches if array contains value)
+            queries.append(Query.equal("members", user_id))
+
         # 1. Fetch teams
         teams_result = await asyncio.to_thread(
             db.list_documents,
             database_id=settings.APPWRITE_DATABASE_ID,
-            collection_id=settings.COLLECTION_TEAMS
+            collection_id=settings.COLLECTION_TEAMS,
+            queries=queries
         )
         
         # 2. Collect all unique user IDs

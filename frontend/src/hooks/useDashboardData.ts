@@ -16,8 +16,9 @@ async function fetchUserHackathons(userId: string) {
   return res.json();
 }
 
-async function fetchTeams() {
-  const res = await fetch(`${API_URL}/teams`);
+async function fetchTeams(userId?: string) {
+  const url = userId ? `${API_URL}/teams?user_id=${userId}` : `${API_URL}/teams`;
+  const res = await fetch(url);
   if (!res.ok) throw new Error("Failed to load teams");
   return res.json();
 }
@@ -42,12 +43,15 @@ export function useDashboardData() {
 
   // 3. Fetch Teams (Cached for 5 mins)
   const teamsQuery = useQuery({
-    queryKey: ["teams"],
-    queryFn: fetchTeams,
+    queryKey: ["teams", user?.id],
+    queryFn: () => fetchTeams(user?.id),
+    enabled: !!user?.id,
     staleTime: 1000 * 60 * 5,
   });
 
   const myTeam = useMemo(() => {
+    // Since we filter by user_id in the API, the first team returned is likely the one we want
+    // But we still check members just in case
     return teamsQuery.data?.documents?.find((team: any) => 
       team.members.includes(user?.id)
     );
@@ -57,7 +61,9 @@ export function useDashboardData() {
     allHackathons: allHackathonsQuery.data?.documents || [],
     myHackathons: myHackathonsQuery.data?.hackathons || [],
     myTeam,
-    isLoading: isAuthLoading || allHackathonsQuery.isLoading || (!!user && myHackathonsQuery.isLoading) || teamsQuery.isLoading,
+    isLoading: isAuthLoading || allHackathonsQuery.isLoading || (!!user && myHackathonsQuery.isLoading),
+    // Show loading if user is logged in but data hasn't arrived yet (and no error)
+    isTeamsLoading: !!user && !teamsQuery.data && !teamsQuery.isError,
     isError: allHackathonsQuery.isError
   };
 }

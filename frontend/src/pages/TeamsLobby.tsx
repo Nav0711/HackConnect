@@ -10,6 +10,7 @@ import { CreateTeamDialog } from "@/components/features/CreateTeamDialog";
 import { useTeams } from "@/hooks/useTeams";
 import { useToast } from "@/hooks/use-toast";
 import { Team } from "@/types/team";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Search,
   Plus,
@@ -36,7 +37,7 @@ export default function TeamsLobby() {
   const [teams, setTeams] = useState<Team[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedSkill, setSelectedSkill] = useState("All Skills");
-  const { fetchTeams, joinTeam } = useTeams();
+  const { fetchTeams, joinTeam, isLoading } = useTeams();
   const { toast } = useToast();
   const [joiningTeamId, setJoiningTeamId] = useState<string | null>(null);
 
@@ -223,24 +224,57 @@ export default function TeamsLobby() {
 
           {/* Teams Grid */}
           <div className="grid md:grid-cols-2 gap-6">
-            {filteredTeams.map((team, index) => (
-              <div
-                key={team.id}
-                className="animate-fade-in"
-                style={{ animationDelay: `${index * 0.1}s` }}
-              >
-                <TeamCard 
-                  team={team} 
-                  variant="lobby" 
-                  onJoin={handleJoinTeam}
-                  isJoining={joiningTeamId === team.id}
-                />
-              </div>
-            ))}
+            {isLoading ? (
+              Array.from({ length: 6 }).map((_, i) => (
+                <Card key={i} className="h-full border-primary/10">
+                  <CardContent className="p-6 space-y-6">
+                    <div className="flex justify-between items-start">
+                      <div className="space-y-2">
+                        <Skeleton className="h-6 w-48" />
+                        <Skeleton className="h-4 w-32" />
+                      </div>
+                      <Skeleton className="h-10 w-10 rounded-xl" />
+                    </div>
+                    <div className="space-y-2">
+                      <Skeleton className="h-4 w-full" />
+                      <Skeleton className="h-4 w-3/4" />
+                    </div>
+                    <div className="flex gap-2">
+                      <Skeleton className="h-6 w-16 rounded-full" />
+                      <Skeleton className="h-6 w-20 rounded-full" />
+                      <Skeleton className="h-6 w-14 rounded-full" />
+                    </div>
+                    <div className="flex justify-between items-center pt-2">
+                      <div className="flex -space-x-2">
+                        <Skeleton className="h-8 w-8 rounded-full border-2 border-background" />
+                        <Skeleton className="h-8 w-8 rounded-full border-2 border-background" />
+                        <Skeleton className="h-8 w-8 rounded-full border-2 border-background" />
+                      </div>
+                      <Skeleton className="h-9 w-28 rounded-md" />
+                    </div>
+                  </CardContent>
+                </Card>
+              ))
+            ) : (
+              filteredTeams.map((team, index) => (
+                <div
+                  key={team.id}
+                  className="animate-fade-in"
+                  style={{ animationDelay: `${index * 0.1}s` }}
+                >
+                  <TeamCard 
+                    team={team} 
+                    variant="lobby" 
+                    onJoin={handleJoinTeam}
+                    isJoining={joiningTeamId === team.id}
+                  />
+                </div>
+              ))
+            )}
           </div>
 
           {/* Empty State */}
-          {filteredTeams.length === 0 && (
+          {!isLoading && filteredTeams.length === 0 && (
             <Card variant="glass" className="p-12 text-center">
               <div className="h-16 w-16 rounded-full bg-muted flex items-center justify-center mx-auto mb-4">
                 <Users className="h-8 w-8 text-muted-foreground" />
