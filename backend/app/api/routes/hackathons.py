@@ -7,9 +7,19 @@ from appwrite.id import ID
 from appwrite.query import Query
 from fastapi.encoders import jsonable_encoder
 import asyncio
+from pydantic import BaseModel, Field
+from typing import Optional
 
 router = APIRouter()
 
+class HackathonUpdate(BaseModel):
+    description: Optional[str] = None
+    prize_pool: Optional[str] = None
+    location: Optional[str] = None
+    tagline: Optional[str] = None
+
+class StatusUpdate(BaseModel):
+    status: str
 
 # --- 1. CREATE HACKATHON ---
 @router.post("/", summary="Create a new Hackathon")
@@ -117,5 +127,39 @@ async def get_hackathon_teams(hackathon_id: str):
         
         return {"success": True, "teams": result['documents']}
         
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+# --- UPDATE DETAILS ---
+@router.put("/{hackathon_id}", summary="Update Hackathon Details")
+async def update_hackathon(hackathon_id: str, update: HackathonUpdate):
+    try:
+        db = get_db_service()
+        data = update.model_dump(exclude_unset=True)
+        if not data: return {"success": False, "message": "No changes"}
+
+        result = await asyncio.to_thread(
+            db.update_document,
+            database_id=settings.APPWRITE_DATABASE_ID,
+            collection_id=settings.COLLECTION_HACKATHONS,
+            document_id=hackathon_id,
+            data=data
+        )
+        return {"success": True, "data": result}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+# --- CHANGE STATUS ---
+@router.patch("/{hackathon_id}/status", summary="Change Event Status")
+async def change_status(hackathon_id: str, status: StatusUpdate):
+    try:
+        db = get_db_service()
+        result = await asyncio.to_thread(
+            db.update_document,
+            database_id=settings.APPWRITE_DATABASE_ID,
+            collection_id=settings.COLLECTION_HACKATHONS,
+            document_id=hackathon_id,
+            data={"status": status.status}
+        )
+        return {"success": True, "message": f"Status changed to {status.status}"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

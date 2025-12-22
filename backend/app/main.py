@@ -2,10 +2,11 @@ from fastapi import FastAPI, Request
 import socket
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
-from app.api.routes import hackathons
+
 from app.services.appwrite import get_db_service # <--- NEW IMPORT
-from app.api.routes import hackathons, auth, users, teams
+
 import time
+from app.api.routes import hackathons, auth, users, teams, submissions, organizer, judging
 
 # --- 🚀 FIX: FORCE IPV4 (Paste this at the top) ---
 # This forces Python to ignore IPv6, fixing the 30s timeout on Cloud.
@@ -71,3 +72,6 @@ app.include_router(auth.router, prefix="/api/auth", tags=["Auth"])
 app.include_router(teams.router, prefix="/api/teams", tags=["Teams"])
 app.include_router(users.router, prefix="/api/users", tags=["Users"])
 
+app.include_router(submissions.router, prefix="/api/submissions", tags=["Submissions"])
+app.include_router(organizer.router, prefix="/api/organizer", tags=["Organizer"])
+app.include_router(judging.router, prefix="/api/judging", tags=["Judging"])
