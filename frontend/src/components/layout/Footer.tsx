@@ -9,16 +9,16 @@ const footerLinks = {
     { label: "For Organizers", href: "/organizers" },
   ],
   resources: [
-    { label: "Documentation", href: "/docs" },
-    { label: "API", href: "/api" },
-    { label: "Blog", href: "/blog" },
+    // { label: "Documentation", href: "/docs" },
+    // { label: "API", href: "/api" },
+    // { label: "Blog", href: "/blog" },
     { label: "Community", href: "/community" },
   ],
   company: [
     { label: "About", href: "/about" },
     { label: "Careers", href: "/careers" },
     { label: "Contact", href: "/contact" },
-    { label: "Press Kit", href: "/press" },
+    // { label: "Press Kit", href: "/press" },
   ],
   legal: [
     { label: "Privacy", href: "/privacy" },
@@ -41,9 +41,10 @@ export function Footer() {
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">
             <Link to="/" className="flex items-center gap-2 mb-4">
-              <Zap className="h-6 w-6 text-primary" />
+              <img src="/logo.svg" alt="HackConnect Logo" className="h-8 w-8 transition-all duration-300 group-hover:scale-110 group-hover:rotate-12" />
+
               <span className="text-lg font-bold">
-                Hack<span className="text-primary">Hub</span>
+                Hack<span className="text-primary">Connect</span>
               </span>
             </Link>
             <p className="text-sm text-muted-foreground mb-4">
