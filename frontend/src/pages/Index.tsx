@@ -308,7 +308,7 @@ export default function Index() {
                   <Button 
                     size="xl" 
                     variant="outline" 
-                    className="h-14 px-8 text-base font-semibold hover:bg-primary/5"
+                    className="h-14 px-8 text-base font-semibold hover:bg-primary/90"
                   >
                     Create Account
                   </Button>
@@ -370,8 +370,12 @@ export default function Index() {
       />
 
       {/* Featured Hackathons */}
-      <section className="py-24">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <section className="py-24 relative overflow-hidden">
+        {/* Background curved elements */}
+        <div className="absolute top-0 left-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2" />
+        <div className="absolute bottom-0 right-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl translate-x-1/2 translate-y-1/2" />
+        
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-10">
           <motion.div
             className="flex items-center justify-between mb-12"
             initial={{ opacity: 0, y: 20 }}
@@ -402,11 +406,11 @@ export default function Index() {
           </motion.div>
 
           <motion.div
-            className="grid md:grid-cols-2 lg:grid-cols-3 gap-6"
+            className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"
             variants={{
               visible: {
                 transition: {
-                  staggerChildren: 0.1,
+                  staggerChildren: 0.12,
                 },
               },
             }}
@@ -424,32 +428,61 @@ export default function Index() {
                 <motion.div
                   key={hackathon.id}
                   layoutId={hackathon.id}
-                  className="h-full group relative featured-hackathon-glow"
+                  className="h-full group perspective"
                   custom={index}
                   variants={slideInVariants}
                   initial="hidden"
                   whileInView="visible"
                   viewport={{ once: true }}
-                  whileHover={{ y: -8 }}
+                  whileHover={{ y: -12 }}
                 >
-                  {/* Secondary Glow for all cards on hover */}
-                  <motion.div
-                    className="absolute -inset-1 bg-gradient-to-r from-primary/40 to-transparent rounded-xl opacity-0 group-hover:opacity-100 blur-xl transition-all duration-500 -z-10"
-                    initial={{ opacity: 0 }}
-                    whileHover={{ opacity: 1 }}
-                    transition={{ duration: 0.3 }}
-                  />
+                  {/* Outer curved glow container */}
+                  <div className="relative h-full rounded-2xl transition-all duration-500 group-hover:shadow-2xl group-hover:shadow-primary/20">
+                    {/* Curved gradient background on hover */}
+                    <motion.div
+                      className="absolute -inset-1 bg-gradient-to-br from-primary/30 via-primary/10 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 blur-xl transition-all duration-500 -z-10"
+                      initial={{ opacity: 0 }}
+                      whileHover={{ opacity: 1 }}
+                      transition={{ duration: 0.3 }}
+                    />
 
-                  <HackathonCard
-                    hackathon={hackathon}
-                    variant={index === 0 ? "featured" : "default"}
-                    onClick={() => setSelectedId(hackathon.id)}
-                  />
+                    {/* Inner border glow */}
+                    <motion.div
+                      className="absolute -inset-0.5 bg-gradient-to-br from-primary/40 to-primary/0 rounded-2xl opacity-0 group-hover:opacity-60 transition-all duration-500 -z-20 blur-lg"
+                      initial={{ opacity: 0 }}
+                      whileHover={{ opacity: 0.6 }}
+                      transition={{ duration: 0.3 }}
+                    />
 
-                  {/* Top accent line on hover */}
-                  <motion.div
-                    className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary/0 via-primary to-primary/0 rounded-t-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                  />
+                    {/* Card */}
+                    <div className="relative h-full rounded-2xl overflow-hidden bg-background/40 backdrop-blur-sm border border-primary/10 group-hover:border-primary/30 transition-all duration-300">
+                      <HackathonCard
+                        hackathon={hackathon}
+                        variant={index === 0 ? "featured" : "default"}
+                        onClick={() => setSelectedId(hackathon.id)}
+                      />
+                    </div>
+
+                    {/* Top curved accent line */}
+                    <motion.div
+                      className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                      style={{ borderRadius: "2px 2px 0 0" }}
+                    />
+
+                    {/* Curved corner accents */}
+                    <motion.div
+                      className="absolute top-0 left-0 w-20 h-20 border-l-2 border-t-2 border-primary rounded-full opacity-0 group-hover:opacity-30 transition-opacity duration-500 pointer-events-none"
+                      initial={{ scale: 0 }}
+                      whileHover={{ scale: 1 }}
+                      transition={{ duration: 0.3 }}
+                    />
+                    <motion.div
+                      className="absolute bottom-0 right-0 w-20 h-20 border-r-2 border-b-2 border-primary rounded-full opacity-0 group-hover:opacity-30 transition-opacity duration-500 pointer-events-none"
+                      initial={{ scale: 0 }}
+                      whileHover={{ scale: 1 }}
+                      transition={{ duration: 0.3 }}
+                    />
+                  </div>
                 </motion.div>
               ))
             )}
@@ -834,7 +867,7 @@ export default function Index() {
                       <Button 
                         size="lg" 
                         variant="outline" 
-                        className="h-14 px-10 text-base font-semibold hover:bg-primary/5"
+                        className="h-14 px-10 text-base font-semibold hover:bg-primary/90"
                       >
                         Browse Hackathons
                       </Button>
